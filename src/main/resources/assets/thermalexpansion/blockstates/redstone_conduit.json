@@ -1,0 +1,94 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit"
+      }
+    },
+    {
+      "when": {
+        "north": true,
+        "south": true,
+        "up": false,
+        "down": false,
+        "west": false,
+        "east": false
+      },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector_long"
+      }
+    },
+    {
+      "when": {
+        "north": false,
+        "south": false,
+        "up": true,
+        "down": true,
+        "west": false,
+        "east": false
+      },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector_long",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "north": false,
+        "south": false,
+        "up": false,
+        "down": false,
+        "west": true,
+        "east": true
+      },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector_long",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "north": true
+      },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector"
+      }
+    },
+    {
+      "when": { "east": true },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector",
+        "y": 90
+      }
+    },
+    {
+      "when": { "south": true },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector",
+        "y": 180
+      }
+    },
+    {
+      "when": { "west": true },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector",
+        "y": 270
+      }
+    },
+    {
+      "when": { "up": true },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector",
+        "x": 90
+      }
+    },
+    {
+      "when": { "down": true },
+      "apply": {
+        "model": "thermalexpansion:block/redstone_conduit_connector",
+        "x": 270
+      }
+    }
+  ]
+}
+
