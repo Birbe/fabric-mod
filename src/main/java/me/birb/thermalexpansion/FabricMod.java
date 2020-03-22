@@ -3,6 +3,7 @@ package me.birb.thermalexpansion;
 import me.birb.thermalexpansion.block.AmberBlock;
 import me.birb.thermalexpansion.block.conduit.RedstoneConduit;
 import me.birb.thermalexpansion.block.conduit.RedstoneConduitEntity;
+import me.birb.thermalexpansion.block.machine.Evaporator;
 import me.birb.thermalexpansion.block.machine.RedstoneFurnace;
 import me.birb.thermalexpansion.item.AmberItem;
 import net.fabricmc.api.ModInitializer;
@@ -28,6 +29,8 @@ public class FabricMod implements ModInitializer {
 
 	public static final Block REDSTONE_FURNACE = new RedstoneFurnace(FabricBlockSettings.of(Material.METAL).build());
 
+	public static final Block EVAPORATOR = new Evaporator(FabricBlockSettings.of(Material.METAL).build());
+
 	@Override
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -47,6 +50,9 @@ public class FabricMod implements ModInitializer {
 
 		Registry.register(Registry.BLOCK, new Identifier("thermalexpansion", "redstone_furnace"), REDSTONE_FURNACE);
 		Registry.register(Registry.ITEM, new Identifier("thermalexpansion", "redstone_furnace"), new BlockItem(REDSTONE_FURNACE, new Item.Settings().group(ItemGroup.MATERIALS)));
+
+		Registry.register(Registry.BLOCK, new Identifier("thermalexpansion", "evaporator"), EVAPORATOR);
+		Registry.register(Registry.ITEM, new Identifier("thermalexpansion", "evaporator"), new BlockItem(EVAPORATOR, new Item.Settings().group(ItemGroup.BREWING)));
 
 		REDSTONE_CONDUIT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, "thermalexpansion:redstone_conduit", BlockEntityType.Builder.create(RedstoneConduitEntity::new, REDSTONE_CONDUIT).build(null));
 	}

@@ -19,30 +19,8 @@ import javax.annotation.Nullable;
 
 public class RedstoneFurnace extends Machine {
 
-    public static DirectionProperty direction = DirectionProperty.of("direction", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
-
     public RedstoneFurnace(Settings settings) {
         super(settings);
-
-        setDefaultState(getStateManager().getDefaultState().with(direction, Direction.NORTH));
-    }
-
-    @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(direction);
-    }
-
-//    @Override
-//    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-//        //Direction facing = Direction.fromRotation(placer.getHeadYaw()).getOpposite();
-//        //world.setBlockState(pos, world.getBlockState(pos).with(direction, facing));
-//    }
-
-
-    @Nullable
-    @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return super.getPlacementState(ctx).with(direction, ctx.getPlayerFacing().getOpposite());
     }
 
     @Override
