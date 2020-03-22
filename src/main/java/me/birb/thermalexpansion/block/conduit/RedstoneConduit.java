@@ -2,10 +2,13 @@ package me.birb.thermalexpansion.block.conduit;
 
 import me.birb.thermalexpansion.network.ConduitState;
 import me.birb.thermalexpansion.network.EnergyConduit;
-import me.birb.thermalexpansion.network.EnergyConsumer;
+import me.birb.thermalexpansion.network.energynode.EnergyConsumer;
 import me.birb.thermalexpansion.network.EnergyNetwork;
-import me.birb.thermalexpansion.network.EnergyProducer;
+import me.birb.thermalexpansion.network.energynode.EnergyNode;
+import me.birb.thermalexpansion.network.energynode.EnergyProducer;
 import me.birb.thermalexpansion.network.NetworkManager;
+import me.birb.thermalexpansion.network.energynode.PeerState;
+import me.birb.thermalexpansion.network.energynode.state.EnergyNodeState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -31,8 +34,6 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static me.birb.thermalexpansion.FabricMod.REDSTONE_CONDUIT;
 
 public class RedstoneConduit extends Block implements EnergyConduit, BlockEntityProvider {
 
@@ -68,31 +69,8 @@ public class RedstoneConduit extends Block implements EnergyConduit, BlockEntity
         for(Direction direction : Direction.values()) { //Tell neighbours to do so
             if(world.getBlockState(pos.offset(direction)).getBlock() instanceof RedstoneConduit) updateBlockState(world, pos.offset(direction));
         }
-        //discoverNetwork(world, pos);
-        List<ConduitState> peers = getPeers(world, pos);
-        ArrayList<EnergyNetwork> networks = new ArrayList<>();
-        for(ConduitState conduit : peers) {
-            if(conduit.getNetwork() != null) {
-                if(!networks.contains(conduit.getNetwork())) {
-                    networks.add(conduit.getNetwork());
-                }
-            }
-        }
 
-        if(networks.size() == 0) {
-            EnergyNetwork newNetwork = new EnergyNetwork();
-            NetworkManager.addNetwork(newNetwork);
-            setNetwork(world, pos, newNetwork);
-        } else if(networks.size() == 1) {
-            setNetwork(world, pos, networks.get(0));
-        } else {
-            EnergyNetwork newNetwork = NetworkManager.mergeNetworks(networks);
-            setNetwork(world, pos, newNetwork);
-            ArrayList<Long> visited = new ArrayList<>();
-            for(ConduitState peer : peers) {
-                peer.recurseSetNetwork(world, peer.getPos(), visited, newNetwork);
-            }
-        }
+        joinNetwork(pos, world);
     }
 
     @Override
@@ -119,16 +97,18 @@ public class RedstoneConduit extends Block implements EnergyConduit, BlockEntity
         }
 
         //Update the network
-        List<ConduitState> peers = getPeers(world, pos);
+        List<ConduitState> peers = getConduitPeers(world, pos);
         ArrayList<BlockPos> ignore = new ArrayList<>();
         ignore.add(pos);
         for(ConduitState conduit : peers) {
             if(!ignore.contains(conduit.getPos())) {
-                ArrayList<BlockPos> nodes = conduit.recurseDiscoverNetwork(world, conduit.getPos(), ignore, new ArrayList<>());
+                List<PeerState> nodes = conduit.recurseDiscoverNetwork(world, conduit.getPos(), ignore, new ArrayList<>());
                 EnergyNetwork newnet = new EnergyNetwork();
-                NetworkManager.addNetwork(newnet);
-                for(BlockPos node : nodes) {
-                    setNetwork(world, node, newnet);
+                NetworkManager.registerNetwork(newnet);
+                setNetwork(conduit.getPos(), world, newnet);
+                for(PeerState node : nodes) {
+                    //NetworkManager.removeNetwork(node.getNetwork());
+                    node.setNetwork(newnet);
                 }
             }
         }
@@ -169,20 +149,27 @@ public class RedstoneConduit extends Block implements EnergyConduit, BlockEntity
     @Override
     @Nullable
     public EnergyNetwork getNetwork(World world, BlockPos pos) {
-        int id = ((RedstoneConduitEntity)world.getBlockEntity(pos)).networkId;
-        if(id > -1 && id < NetworkManager.getNetworks().size()) return NetworkManager.getNetwork(id);
-        else return null;
+        BlockEntity entity = world.getBlockEntity(pos);
+        if(entity != null) {
+            int id = ((RedstoneConduitEntity) world.getBlockEntity(pos)).networkId;
+            if (id > -1 && id < NetworkManager.getNetworks().size()) return NetworkManager.getNetwork(id);
+        }
+        return null;
     }
 
-    public void setNetwork(World world, BlockPos pos, EnergyNetwork network) {
+    @Override
+    public void setNetwork(BlockPos pos, World world, EnergyNetwork network) {
         setNetwork(world, pos, NetworkManager.getNetworkId(network));
     }
 
     public void setNetwork(World world, BlockPos pos, int id) {
-        ((RedstoneConduitEntity) world.getBlockEntity(pos)).networkId = id;
+        BlockEntity entity = world.getBlockEntity(pos);
+        if(entity != null) {
+            ((RedstoneConduitEntity)entity).networkId = id;
+        }
     }
 
-    public List<ConduitState> getPeers(World world, BlockPos pos) {
+    public List<ConduitState> getConduitPeers(World world, BlockPos pos) {
         ArrayList<ConduitState> peers = new ArrayList<>();
 
         for(Direction direction : Direction.values()) {

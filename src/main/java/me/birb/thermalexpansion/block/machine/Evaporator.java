@@ -1,14 +1,5 @@
 package me.birb.thermalexpansion.block.machine;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.util.math.Direction;
-
-import javax.annotation.Nullable;
-
 public class Evaporator extends Machine {
 
     public Evaporator(Settings settings) {

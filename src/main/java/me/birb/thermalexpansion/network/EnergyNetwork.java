@@ -1,7 +1,8 @@
 package me.birb.thermalexpansion.network;
 
-import it.unimi.dsi.fastutil.longs.LongList;
-import it.unimi.dsi.fastutil.longs.LongLists;
+import me.birb.thermalexpansion.network.energynode.state.EnergyConsumerState;
+import me.birb.thermalexpansion.network.energynode.state.EnergyNodeState;
+import me.birb.thermalexpansion.network.energynode.state.EnergyProducerState;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ public class EnergyNetwork {
     private int maxCapacity;
     private int currentFlow;
 
-    private ArrayList<EnergyConsumer> consumers = new ArrayList<>(); //Nodes are either producers or consumers.
-    private ArrayList<EnergyProducer> producers = new ArrayList<>();
+    private ArrayList<EnergyNodeState<?>> nodes = new ArrayList<>(); //Nodes are either producers or consumers.
+    private ArrayList<ConduitState> conduits = new ArrayList<>();
 
     private World world;
 
@@ -32,46 +33,37 @@ public class EnergyNetwork {
         return currentFlow;
     }
 
-    public void setCurrentFlow(int currentFlow) {
-        this.currentFlow = currentFlow;
-    }
-
-    public void setConsumers(ArrayList<EnergyConsumer> consumers) {
-        this.consumers = consumers;
-    }
-
-    public void setProducers(ArrayList<EnergyProducer> producers) {
-        this.producers = producers;
+    public void setNodes(ArrayList<EnergyNodeState<?>> nodes) {
+        this.nodes = nodes;
     }
 
     public World getWorld() {
         return world;
     }
 
-    public void addProducer(EnergyProducer producer) {
-        producer.setNetwork(this);
-        producers.add(producer);
+    public void addNode(EnergyNodeState<?> node) {
+        node.getNode().setNetwork(node.getPos(), node.getWorld(), this);
+        nodes.add(node);
     }
 
-    public void removeProducer(EnergyNode node) {
-        producers.remove(node);
+    public ArrayList<EnergyNodeState<?>> getNodes() {
+        return nodes;
     }
 
-    public ArrayList<EnergyProducer> getProducers() {
-        return producers;
+    public int getId() {
+        return NetworkManager.getNetworkId(this);
     }
 
-    public void addConsumer(EnergyConsumer consumer) {
-        consumer.setNetwork(this);
-        consumers.add(consumer);
+    public ArrayList<ConduitState> getConduits() {
+        return conduits;
     }
 
-    public void removeConsumer(EnergyConsumer consumer) {
-        consumers.remove(consumer);
+    public void setConduits(ArrayList<ConduitState> conduits) {
+        this.conduits = conduits;
     }
 
-    public ArrayList<EnergyConsumer> getConsumers() {
-        return consumers;
+    public void removeConduit(ConduitState state) {
+
     }
 
 }

@@ -1,5 +1,9 @@
 package me.birb.thermalexpansion.network;
 
+import me.birb.thermalexpansion.network.energynode.state.EnergyConsumerState;
+import me.birb.thermalexpansion.network.energynode.state.EnergyNodeState;
+import me.birb.thermalexpansion.network.energynode.state.EnergyProducerState;
+
 import java.util.ArrayList;
 
 public class NetworkManager {
@@ -14,18 +18,18 @@ public class NetworkManager {
         return mergeNetworks(mergingNetworks);
     }
 
+    public static void removeNetwork(EnergyNetwork network) {
+        if(network != null) networks.remove(network);
+    }
+
     public static EnergyNetwork mergeNetworks(Iterable<EnergyNetwork> mergingNetworks) {
         EnergyNetwork merged = new EnergyNetwork();
 
         for(EnergyNetwork network : mergingNetworks) {
-            ArrayList<EnergyProducer> producers = network.getProducers();
-            ArrayList<EnergyConsumer> consumers = network.getConsumers();
-            for(EnergyProducer node : producers) {
-                merged.addProducer(node);
-            }
+            ArrayList<EnergyNodeState<?>> nodes = network.getNodes();
 
-            for(EnergyConsumer node : consumers) {
-                merged.addConsumer(node);
+            for(EnergyNodeState<?> node : nodes) {
+                merged.addNode(node);
             }
 
             networks.remove(network);
@@ -40,9 +44,15 @@ public class NetworkManager {
         return networks.get(id);
     }
 
-    public static int addNetwork(EnergyNetwork network) {
+    public static void registerNetwork(EnergyNetwork network) {
+        //networks.trimToSize();
+        for(int i=0;i<networks.size();i++) { //Put a network in a free ID if possible
+            if(networks.get(i) == null) {
+                networks.set(i, network);
+                return;
+            }
+        }
         networks.add(network);
-        return networks.indexOf(network);
     }
 
     public static int getNetworkId(EnergyNetwork network) {
